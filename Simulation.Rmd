@@ -1,0 +1,76 @@
+---
+title: "Maestría"
+author: "Jhonier Rangel"
+date: "2023-06-24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#################################
+#                               #
+#                               #
+#       Black Noise H=4/5       #
+#                               #
+#                               #
+#################################
+# H=3/4
+I=0#Initial point
+F=1#Final point
+H<-4/5
+sig<-1
+N<-7
+dt<-(F-I)/N
+t<-seq(I,F,length=N)#Domain
+C<-matrix(0,N-1,N-1)
+for (i in 2:N) {
+  for (j in 2:N) {
+   C[i-1,j-1] <- (1/2)*((abs(t[i])^(2*H) + abs(t[j])^(2*H) - abs(t[i]-t[j])^(2*H)))
+  }
+}
+C[1:5,1:5]
+```
+```{r}
+z<-rnorm(N-1)
+L<- 2*log(prod(dnorm(chol(C)%*%z))/prod(dnorm(z)))
+L
+```
+```{r}
+n<-100
+Z<-matrix(0,n,N-1)
+L<-rep(0,n)
+for(i in 1:n){
+Z[i,]<-rnorm(N-1)
+L[i]<- -2*log(prod(solve(chol(C))%*%dnorm(Z[i,]))/prod(dnorm(Z[i,])))
+}
+plot(density(L))
+L
+quantile(L,0.94)
+-log(prod(dnorm(solve(chol(C))%*%Z[i,]))/prod(100*dnorm(Z[i,])))
+prod(L>=0)
+B<-C%*%rnorm(N-1)
+prod(dnorm(chol(C)%*%B))/prod(dnorm(B))
+```
+
+```{r}
+quantile(L)
+```
+```{r}
+library(MASS)
+library(MVN)
+del<-NULL
+for(i in 1:10000){
+d<-mvrnorm(1,rep(0,14),C)
+t<-2*log(prod(dnorm(solve(chol(C))%*%d))/prod(dnorm(d)))
+del[i]<- t<quantile(L,0.5)
+}
+mean(del)
+```
+```{r}
+d<-chol(C)%*%rnorm(9)
+prod(dnorm(solve(chol(C))%*%d))/prod(dnorm(d))
+```
+
